@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="mt_dummy_api" default="all" basedir=".">
+
+  <property name="src.dir" value="${basedir}/src" />
+
+  <property name="dest.dir" value="${basedir}/bin" />
+
+  <property name="target.jar" value="${basedir}/ajdk-api.8.2.4.jar" />
+
+  <target name="all" depends="-init">
+    <javac srcdir="${src.dir}"
+      destdir="${dest.dir}"
+      debug="on"
+      compiler="modern"
+      fork="yes"
+      source="1.6"
+      target="1.6"
+      />
+    <jar destfile="${target.jar}" >
+      <fileset dir="${dest.dir}" />
+    </jar>
+  </target>
+
+  <target name="-init">
+    <mkdir dir="${dest.dir}" />
+  </target>
+
+  <target name="clean">
+    <delete includeEmptyDirs="true">
+      <fileset dir="${dest.dir}" includes="**/*" />
+    </delete>
+    <delete file="${target.jar}" />
+  </target>
+
+</project>
