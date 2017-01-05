@@ -7,6 +7,8 @@
 
   <property name="target.jar" value="${basedir}/ajdk-api.8.2.4.jar" />
 
+  <property name="target.src.jar" value="${basedir}/ajdk-api.8.2.4-sources.jar" />
+
   <target name="all" depends="-init">
     <javac srcdir="${src.dir}"
       destdir="${dest.dir}"
@@ -18,6 +20,9 @@
       />
     <jar destfile="${target.jar}" >
       <fileset dir="${dest.dir}" />
+    </jar>
+    <jar destfile="${target.src.jar}" >
+      <fileset dir="${src.dir}" />
     </jar>
   </target>
 
