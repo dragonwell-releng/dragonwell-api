@@ -5,11 +5,17 @@
 
   <property name="dest.dir" value="${basedir}/bin" />
 
-  <property name="target.jar" value="${basedir}/ajdk-api.8.2.4.jar" />
+  <property name="docs.dir" value="${basedir}/docs" />
 
-  <property name="target.src.jar" value="${basedir}/ajdk-api.8.2.4-sources.jar" />
+  <property name="target.jar" value="${basedir}/ajdk-api-8.2.4.jar" />
 
-  <target name="all" depends="-init">
+  <property name="target.src.jar" value="${basedir}/ajdk-api-8.2.4-sources.jar" />
+
+  <property name="target.docs.jar" value="${basedir}/ajdk-api-8.2.4-javadoc.jar" />
+
+  <target name="all" depends="-init, -build, -archive" />
+
+  <target name="-build" depends="-init">
     <javac srcdir="${src.dir}"
       destdir="${dest.dir}"
       debug="on"
@@ -18,23 +24,45 @@
       source="1.6"
       target="1.6"
       />
+    <javadoc destdir="${docs.dir}"
+             author="true"
+             version="true"
+             use="true"
+             windowtitle="Javadoc for ajdk-api">
+
+      <packageset dir="${src.dir}" defaultexcludes="yes">
+        <include name="com/alibaba/**"/>
+      </packageset>
+
+      <bottom><![CDATA[<i>Copyright &#169; 2017 Alibaba-inc.com All Rights Reserved.</i>]]></bottom>
+    </javadoc>
+  </target>
+
+  <target name="-archive" depends="-init, -build">
     <jar destfile="${target.jar}" >
       <fileset dir="${dest.dir}" />
     </jar>
     <jar destfile="${target.src.jar}" >
       <fileset dir="${src.dir}" />
     </jar>
+    <jar destfile="${target.docs.jar}" >
+      <fileset dir="${docs.dir}" />
+    </jar>
   </target>
 
   <target name="-init">
     <mkdir dir="${dest.dir}" />
+    <mkdir dir="${docs.dir}" />
   </target>
 
   <target name="clean">
     <delete includeEmptyDirs="true">
       <fileset dir="${dest.dir}" includes="**/*" />
+      <fileset dir="${docs.dir}" includes="**/*" />
     </delete>
     <delete file="${target.jar}" />
+    <delete file="${target.src.jar}" />
+    <delete file="${target.docs.jar}" />
   </target>
 
 </project>
