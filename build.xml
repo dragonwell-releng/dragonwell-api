@@ -32,6 +32,8 @@
 
       <packageset dir="${src.dir}" defaultexcludes="yes">
         <include name="com/alibaba/**"/>
+        <include name="com/alipay/tracing/**"/>
+        <include name="com/taobao/gcih/**"/>
       </packageset>
 
       <bottom><![CDATA[<i>Copyright &#169; 2017 Alibaba-inc.com All Rights Reserved.</i>]]></bottom>
