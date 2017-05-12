@@ -4,7 +4,6 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -110,6 +109,14 @@ public class TenantContainer {
     }
 
     /**
+     * Set the tenant state
+     * @param state used to set
+     */
+    private void setState(TenantState state) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
      * Returns the tenant' id
      * @return tenant id
      */
@@ -181,6 +188,7 @@ public class TenantContainer {
         throw new RuntimeException("Dummy AJDK API found");
     }
 
+
     /**
      * Gets the tenant id list
      * @return the tenant id list, Collections.emptyList if no tenant exists.
@@ -203,6 +211,15 @@ public class TenantContainer {
      * @return the cpu time used by this tenant, 0 if tenant cpu throttling or accounting feature is disabled.
      */
     public long getProcessCpuTime() {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * Gets the heap space occupied by this tenant
+     * @return heap space occupied by this tenant, 0 if tenant heap throttling is disabled.
+     * @throws IllegalStateException if -XX:+TenantHeapThrottling is not enabled.
+     */
+    public long getOccupiedMemory() {
         throw new RuntimeException("Dummy AJDK API found");
     }
 
@@ -295,6 +312,15 @@ public class TenantContainer {
      * @param cl    the ClassLoader object to be associated
      */
     public void addTenantClassLoader(ClassLoader cl) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * Try to modify resource limit of current tenant,
+     * for resource whose limit cannot be changed after creation of {@code TenantContainer}, its limit will be ignored.
+     * @param config  new TenantConfiguration to
+     */
+    public void update(TenantConfiguration config) {
         throw new RuntimeException("Dummy AJDK API found");
     }
 }

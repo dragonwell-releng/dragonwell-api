@@ -26,12 +26,6 @@ public class BinaryLogParser extends AbstractBinaryParser<List<MethodTracingReco
     private long lastIndex;
     private FileChannel ch;
 
-    static {
-        String idMap = AccessController.doPrivileged(new sun.security.action.GetPropertyAction(METHOD_TRACING_ID_MAP));
-        if (idMap != null && idMap.equals("false")) {
-            needMapId = false;
-        }
-    }
 
     BinaryLogParser(File file, BinaryLogDictionary dict) throws IOException {
         this.dict = dict;

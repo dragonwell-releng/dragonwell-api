@@ -10,4 +10,8 @@ public interface TenantContainerMXBean extends PlatformManagedObject {
     public long getTenantProcessCpuTimeById(long id);
 
     public long getTenantAllocatedMemoryById(long id);
+
+    public long getTenantOccupiedMemoryById(long id);
+
+    public String getTenantNameById(long id);
 }

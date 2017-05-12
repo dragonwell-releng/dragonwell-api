@@ -27,7 +27,7 @@ public class ThreadTracer {
      * Enable method tracing on specific thread.
      *
      * @param thread marked for tracing.
-     * @traceId trace id
+     * @param traceId trace id
      */
     public static void startMethodTracing(Thread thread, String traceId) {
         throw new RuntimeException("AJDK dummy API found");
