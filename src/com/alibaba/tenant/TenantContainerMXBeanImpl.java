@@ -24,7 +24,17 @@ public class TenantContainerMXBeanImpl implements TenantContainerMXBean {
     }
 
     @Override
+    public long getTenantOccupiedMemoryById(long id) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    @Override
     public ObjectName getObjectName() {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    @Override
+    public String getTenantNameById(long id) {
         throw new RuntimeException("Dummy AJDK API found");
     }
 }
