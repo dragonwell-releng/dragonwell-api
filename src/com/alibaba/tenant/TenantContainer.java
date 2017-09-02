@@ -179,12 +179,33 @@ public class TenantContainer {
     }
 
     /**
+     * Create tenant container by the configuration
+     * @param parent parent tenant container
+     * @param configuration used to create tenant
+     * @return the tenant container
+     */
+    public static TenantContainer create(TenantContainer parent, TenantConfiguration configuration) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
      * Create tenant container by the name and configuration
      * @param name the tenant name
      * @param configuration used to create tenant
      * @return the tenant container
      */
     public static TenantContainer create(String name, TenantConfiguration configuration) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * Create tenant container by the name and configuration
+     * @param parent parent tenant container
+     * @param name the tenant name
+     * @param configuration used to create tenant
+     * @return the tenant container
+     */
+    public static TenantContainer create(TenantContainer parent, String name, TenantConfiguration configuration) {
         throw new RuntimeException("Dummy AJDK API found");
     }
 
