@@ -39,6 +39,11 @@ public class TenantGlobals {
     public static final int TENANT_FLAG_CPU_ACCOUNTING_ENABLED    = 0x40;
 
     /**
+     * Bit to indicate that if DirectTenureAlloc feature is enabled
+     */
+    public static final int TENANT_FLAG_DIRECT_TENURED_ALLOC_ENABLED = 0x100;
+
+    /**
      * Test if multi-tenant feature is enabled.
      * @return true if enabled otherwise false
      */
@@ -91,6 +96,14 @@ public class TenantGlobals {
      * @return true if enabled otherwise false
      */
     public static boolean isIOHandleReclaimingEnabled() {
+        throw new RuntimeException("AJDK dummy API found");
+    }
+
+    /**
+     * Test if DirectTenuredAlloc feature is enabled.
+     * @return true if enabled otherwise false
+     */
+    public static boolean isDirectTenuredAllocEnabled() {
         throw new RuntimeException("AJDK dummy API found");
     }
 }

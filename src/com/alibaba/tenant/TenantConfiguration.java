@@ -79,6 +79,21 @@ public class TenantConfiguration {
     }
 
     /**
+     * @return true if configured to allocate object in old
+     */
+    public boolean isAllocToOld() {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * set the allocate type of configuration as OLD.
+     * @return current configuration
+     */
+    public TenantConfiguration setDirectTenuredAlloc() {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
      * @see TenantConfiguration#getMaxCpuPercent()
      */
     @Deprecated
