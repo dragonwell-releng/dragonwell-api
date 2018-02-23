@@ -18,6 +18,12 @@ public final class WispEngine extends AbstractExecutorService {
 
     private static ExecutorService executor = Executors.newCachedThreadPool();
 
+    private static final boolean transparentAsync = Boolean.getBoolean("com.alibaba.transparentAsync");
+
+    public static boolean isTransparentAsync() {
+        return transparentAsync;
+    }
+
     private WispEngine() {
     }
 

@@ -3,10 +3,12 @@ package com.alibaba.wisp.util.concurrent;
 
 import com.alibaba.wisp.engine.WispEngine;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 
 /**
@@ -18,26 +20,48 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class WispMultiThreadExecutor extends AbstractExecutorService {
 
+    private static boolean SKIP_CHECK_OPTIONS = Boolean.getBoolean("com.alibaba.wisp.skipCheckOptions");
 
     private final WispRunner wispRunners[];
     private final AtomicInteger roundRobin;
     private final Semaphore semaphore;
     private final AtomicBoolean isShutdown;
+    private final Consumer<Runnable> rejectedExecutionHandler;
 
     /**
      * Creates a new {@code WispMultiThreadExecutor} with the given initial
      * parameters.
      *
-     * @param threadCount   the underlying wispEngine count
-     * @param maxCoroutine  the maximum number of maxCoroutine to allow in the Executor,
-     *                      if the limit is reached, {@code execute} invokes will be blocked
-     * @param threadFactory the factory to use when the executor creates a thread
+     * @param threadCount     the underlying wispEngine count
+     * @param maxCoroutine    the maximum number of maxCoroutine to allow in the Executor,
+     *                        if the limit is reached, {@code execute} invokes will be blocked
+     * @param threadFactory   the factory to use when the executor creates a thread
+     * @param rejectedHandler the handler to use when execution is blocked
+     *                        because the maxCoroutine bounds are reached
      */
-    public WispMultiThreadExecutor(int threadCount, int maxCoroutine, ThreadFactory threadFactory) {
+    public WispMultiThreadExecutor(int threadCount, int maxCoroutine,
+                                   ThreadFactory threadFactory,
+                                   Consumer<Runnable> rejectedHandler) {
+        if (!SKIP_CHECK_OPTIONS) {
+            boolean enableCoroutine;
+            try {
+                Field f = sun.misc.VM.class.getDeclaredField("enableCoroutine");
+                f.setAccessible(true);
+                enableCoroutine = f.getBoolean(null);
+            } catch (ReflectiveOperationException e) {
+                enableCoroutine = false;
+            }
+            if (!enableCoroutine || !WispEngine.isTransparentAsync()) {
+                throw new IllegalArgumentException("enableCoroutine=" + enableCoroutine +
+                        ", transparentAsync=" + WispEngine.isTransparentAsync());
+            }
+        }
+
         wispRunners = new WispRunner[threadCount];
         roundRobin = new AtomicInteger();
         semaphore = maxCoroutine > 0 ? new Semaphore(maxCoroutine) : null;
         isShutdown = new AtomicBoolean(false);
+        rejectedExecutionHandler = rejectedHandler;
 
         final CountDownLatch allEngineCreated = new CountDownLatch(threadCount);
 
@@ -56,6 +80,11 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         awaitUninterruptibly(allEngineCreated);
     }
 
+    public WispMultiThreadExecutor(int threadCount, int maxCoroutine,
+                                   ThreadFactory threadFactory) {
+        this(threadCount, maxCoroutine, threadFactory, null);
+    }
+
     private abstract class WispRunner implements Runnable {
         WispEngine engine;
         Thread thread;
@@ -68,7 +97,13 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
             throw new NullPointerException("command");
         }
         if (semaphore != null) { // flow control
-            semaphore.acquireUninterruptibly();
+            if (rejectedExecutionHandler == null) {
+                semaphore.acquireUninterruptibly();
+            } else if (!semaphore.tryAcquire()) {
+                rejectedExecutionHandler.accept(command);
+                return;
+            }
+
             final Runnable originCommand = command;
             command = new Runnable() {
                 @Override
