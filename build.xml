@@ -34,7 +34,7 @@
 
       <packageset dir="${src.dir}" defaultexcludes="yes">
         <include name="com/alibaba/**"/>
-        <include name="com/alipay/tracing/**"/>
+        <include name="com/alipay/**"/>
         <include name="com/taobao/gcih/**"/>
       </packageset>
 
