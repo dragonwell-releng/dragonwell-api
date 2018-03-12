@@ -1,15 +1,8 @@
 package com.alibaba.tenant;
 
-import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
-import java.util.WeakHashMap;
 import java.util.function.Supplier;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /**
  * TenantContainer is a "virtual container" for a tenant of application, the
@@ -342,6 +335,46 @@ public class TenantContainer {
      * @param config  new TenantConfiguration to
      */
     public void update(TenantConfiguration config) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+
+    /**
+     * Set the value of {@code Thread.tenantInheritance}
+     * @param shouldInherit the new value
+     */
+    public static void setCurrentThreadInheritance(boolean shouldInherit) {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * Hide current thread from TenantThreadStop request.
+     * Should be used with {@code unmaskTenantShutdown} in pairs to mark a code snippet
+     * to be immune to {@code TenantContainer.destroy}.
+     *
+     * A common pattern to use these two APIs would be
+     * <pre>
+     *     tenant.maskTenantShutdown();
+     *     try {
+     *         // Uninterruptible operation
+     *         ... ...
+     *     } finally {
+     *         tenant.unmaskTenantShutdown();
+     *     }
+     * </pre>
+     */
+    public static void maskTenantShutdown() {
+        throw new RuntimeException("Dummy AJDK API found");
+    }
+
+    /**
+     * Restore current thread from {@code maskTenantShutdown}.
+     * If {@code TenantContainer.destroy()} happens between
+     * {@code maskTenantShutdown} and {@code unmaskTenantShutdown},
+     * the "masked" thread will start external exit protocol
+     * immediately after returning from {@code unmaskTenantShutdown}.
+     */
+    public static void unmaskTenantShutdown() {
         throw new RuntimeException("Dummy AJDK API found");
     }
 }
