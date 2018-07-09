@@ -9,11 +9,11 @@
 
   <property name="ajdk.version" value="8.5.9" />
 
-  <property name="target.jar" value="${basedir}/ajdk-api-${ajdk.version}.b${build.number}.jar" />
+  <property name="target.jar" value="${basedir}/ajdk-api-${ajdk.version}-0-0.jar" />
 
-  <property name="target.src.jar" value="${basedir}/ajdk-api-${ajdk.version}.b${build.number}-sources.jar" />
+  <property name="target.src.jar" value="${basedir}/ajdk-api-${ajdk.version}-0-0-sources.jar" />
 
-  <property name="target.docs.jar" value="${basedir}/ajdk-api-${ajdk.version}.b${build.number}-javadoc.jar" />
+  <property name="target.docs.jar" value="${basedir}/ajdk-api-${ajdk.version}-0-0-javadoc.jar" />
 
   <target name="all" depends="-init, -build, -archive" />
 
