@@ -60,7 +60,6 @@ public final class WispEngine extends AbstractExecutorService {
 
     @Override
     public void shutdown() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -70,16 +69,16 @@ public final class WispEngine extends AbstractExecutorService {
 
     @Override
     public boolean isShutdown() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
     public boolean isTerminated() {
-        throw new UnsupportedOperationException();
+        return false;
     }
 
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-        throw new UnsupportedOperationException();
+        return false;
     }
 }

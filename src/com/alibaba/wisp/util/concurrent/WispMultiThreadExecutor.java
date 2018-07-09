@@ -4,6 +4,7 @@ package com.alibaba.wisp.util.concurrent;
 import com.alibaba.wisp.engine.WispEngine;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -96,6 +97,9 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         if (command == null) {
             throw new NullPointerException("command");
         }
+        if (isShutdown.get()) {
+            throw new IllegalStateException("has been shutdown");
+        }
         if (semaphore != null) { // flow control
             if (rejectedExecutionHandler == null) {
                 semaphore.acquireUninterruptibly();
@@ -125,6 +129,7 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     public void shutdown() {
         if (!isShutdown.get() && isShutdown.compareAndSet(false, true)) {
             for (WispRunner wispRunner : wispRunners) {
+                wispRunner.engine.shutdown();
                 wispRunner.poison.countDown();
             }
         }
@@ -142,12 +147,18 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
 
     @Override
     public boolean isTerminated() {
-        throw new UnsupportedOperationException();
+        return Arrays.stream(wispRunners).allMatch(runner -> runner.engine.isTerminated());
     }
 
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
-        throw new UnsupportedOperationException();
+        long deadline = System.nanoTime() + unit.toNanos(timeout);
+        for (WispRunner wispRunner : wispRunners) {
+            if (!wispRunner.engine.awaitTermination(deadline - System.nanoTime(), TimeUnit.NANOSECONDS)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private static void awaitUninterruptibly(CountDownLatch latch) {
