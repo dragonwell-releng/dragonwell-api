@@ -4,7 +4,6 @@ package com.alibaba.wisp.util.concurrent;
 import com.alibaba.wisp.engine.WispEngine;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -147,7 +146,12 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
 
     @Override
     public boolean isTerminated() {
-        return Arrays.stream(wispRunners).allMatch(runner -> runner.engine.isTerminated());
+        for (WispRunner wispRunner : wispRunners) {
+            if (!wispRunner.engine.isTerminated()) {
+                return false;
+            }
+        }
+        return true;
     }
 
     @Override
