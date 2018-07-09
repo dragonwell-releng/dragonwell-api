@@ -4,22 +4,16 @@
 
 package com.taobao.gcih;
 
-import java.lang.IllegalStateException;
-
 /**
  * This class provides APIs to manipulate GCIH
  */
 public class GCInvisibleHeap {
+
+    // The GCIH instance
     private static GCIHOperation impl;
 
     static {
-        try {
-           impl = new GCIHImpl();
-        } catch (Throwable e) {
-           System.out.println("GCIH: " + e.getMessage() +
-               ", swith to dummy function!");
-           impl = new GCIHDummy();
-        }
+        impl = new GCIHDummy();
     }
 
     public static boolean contains(Object obj) {
@@ -34,7 +28,23 @@ public class GCInvisibleHeap {
         return impl.getObjectSize(obj);
     }
 
-    public static <T> T moveIn(T obj) {
-        return impl.moveIn(obj);
+    /**
+     * Move all objects that reachable from <code>rootObj</code> to GC invisible heap
+     *
+     * @param rootObj root of the object graph
+     * @param <T>
+     * @return newly allocated root object from GC invisible heap
+     */
+    public static <T> T moveIn(T rootObj) {
+        return impl.moveIn(rootObj);
+    }
+
+    /**
+     * Compact live/reachable Java objects within GCIH,
+     * unreachable objects will be reclaimed.
+     */
+    public static void compact() {
+        impl.compact();
     }
 }
+

@@ -26,4 +26,9 @@ class GCIHDummy implements GCIHOperation {
     public <T> T moveIn(T obj) {
         return obj;
     }
+
+    @Override
+    public void compact() {
+        throw new RuntimeException("Unimplemented");
+    }
 }

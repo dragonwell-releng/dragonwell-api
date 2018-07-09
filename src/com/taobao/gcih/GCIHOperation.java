@@ -13,4 +13,9 @@ interface GCIHOperation {
     int getObjectSize(Object obj);
     long freeMemory();
     <T> T moveIn(T obj);
+
+    /**
+     * Do compaction for GC invisible heap space
+     */
+    void compact();
 }
