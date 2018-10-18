@@ -19,6 +19,20 @@ public class JWarmUp {
     }
 
     /**
+     * Notify jvm to deoptimize warmup methods
+     * <p>
+     * Should be explicitly call after startup of application
+     * and warmup compilation is completed
+     * vm option CompilationWarmUpExplicitDeopt must be on
+     * Otherwise, it does nothing and just prints a warning message.
+     *
+     * @version 1.8
+     */
+    public static synchronized void notifyJVMDeoptWarmUpMethods() {
+        throw new RuntimeException("AJDK dummy API found");
+    }
+
+    /**
      * Check if the last compilation submitted by JWarmUp is complete.
      * <p>
      * call this method after <code>notifyApplicationStartUpIsDone</code>
