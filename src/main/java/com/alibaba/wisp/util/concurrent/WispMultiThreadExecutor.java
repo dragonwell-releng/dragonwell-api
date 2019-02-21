@@ -1,9 +1,11 @@
 package com.alibaba.wisp.util.concurrent;
 
 
+import com.alibaba.wisp.engine.Wisp2Group;
 import com.alibaba.wisp.engine.WispEngine;
+import sun.security.action.GetIntegerAction;
 
-import java.lang.reflect.Field;
+import java.security.AccessController;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -27,6 +29,7 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     private final Semaphore semaphore;
     private final AtomicBoolean isShutdown;
     private final Consumer<Runnable> rejectedExecutionHandler;
+    private final ExecutorService delegated;
 
     /**
      * Creates a new {@code WispMultiThreadExecutor} with the given initial
@@ -42,42 +45,31 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     public WispMultiThreadExecutor(int threadCount, int maxCoroutine,
                                    ThreadFactory threadFactory,
                                    Consumer<Runnable> rejectedHandler) {
-        if (!SKIP_CHECK_OPTIONS) {
-            boolean enableCoroutine;
-            try {
-                Field f = sun.misc.VM.class.getDeclaredField("enableCoroutine");
-                f.setAccessible(true);
-                enableCoroutine = f.getBoolean(null);
-            } catch (ReflectiveOperationException e) {
-                enableCoroutine = false;
-            }
-            if (!enableCoroutine || !WispEngine.isTransparentAsync()) {
-                throw new IllegalArgumentException("enableCoroutine=" + enableCoroutine +
-                        ", transparentAsync=" + WispEngine.isTransparentAsync());
-            }
-        }
-
         wispRunners = new WispRunner[threadCount];
         roundRobin = new AtomicInteger();
         semaphore = maxCoroutine > 0 ? new Semaphore(maxCoroutine) : null;
         isShutdown = new AtomicBoolean(false);
         rejectedExecutionHandler = rejectedHandler;
+        if (AccessController.doPrivileged(new GetIntegerAction("com.alibaba.wisp.version", 1)) == 2) {
+            delegated = Wisp2Group.createGroup(threadCount, threadFactory);
+        } else {
+            delegated = null;
+            final CountDownLatch allEngineCreated = new CountDownLatch(threadCount);
 
-        final CountDownLatch allEngineCreated = new CountDownLatch(threadCount);
-
-        for (int i = 0; i < threadCount; i++) {
-            wispRunners[i] = new WispRunner() {
-                @Override
-                public void run() {
-                    this.engine = WispEngine.current();
-                    this.thread = Thread.currentThread();
-                    allEngineCreated.countDown();
-                    awaitUninterruptibly(this.poison);
-                }
-            };
-            threadFactory.newThread(wispRunners[i]).start();
+            for (int i = 0; i < threadCount; i++) {
+                wispRunners[i] = new WispRunner() {
+                    @Override
+                    public void run() {
+                        this.engine = WispEngine.current();
+                        this.thread = Thread.currentThread();
+                        allEngineCreated.countDown();
+                        awaitUninterruptibly(this.poison);
+                    }
+                };
+                threadFactory.newThread(wispRunners[i]).start();
+            }
+            awaitUninterruptibly(allEngineCreated);
         }
-        awaitUninterruptibly(allEngineCreated);
     }
 
     public WispMultiThreadExecutor(int threadCount, int maxCoroutine,
@@ -120,13 +112,21 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
             };
         }
 
-        wispRunners[(roundRobin.getAndIncrement() & 0xfffffff) // avoid overflow to negative
-                % wispRunners.length].engine.execute(command);
+        if (delegated != null) {
+            delegated.execute(command);
+        } else {
+            wispRunners[(roundRobin.getAndIncrement() & 0xfffffff) // avoid overflow to negative
+                    % wispRunners.length].engine.execute(command);
+        }
     }
 
     @Override
     public void shutdown() {
         if (!isShutdown.get() && isShutdown.compareAndSet(false, true)) {
+            if (delegated != null) {
+                delegated.shutdown();
+                return;
+            }
             for (WispRunner wispRunner : wispRunners) {
                 wispRunner.engine.shutdown();
                 wispRunner.poison.countDown();
@@ -146,6 +146,9 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
 
     @Override
     public boolean isTerminated() {
+        if (delegated != null) {
+            return delegated.isTerminated();
+        }
         for (WispRunner wispRunner : wispRunners) {
             if (!wispRunner.engine.isTerminated()) {
                 return false;
@@ -156,6 +159,9 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
 
     @Override
     public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
+        if (delegated != null) {
+            return delegated.awaitTermination(timeout, unit);
+        }
         long deadline = System.nanoTime() + unit.toNanos(timeout);
         for (WispRunner wispRunner : wispRunners) {
             if (!wispRunner.engine.awaitTermination(deadline - System.nanoTime(), TimeUnit.NANOSECONDS)) {
@@ -183,4 +189,3 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         }
     }
 }
-
