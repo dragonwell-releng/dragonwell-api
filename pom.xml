@@ -4,7 +4,7 @@
   <groupId>com.alibaba.ajdk</groupId>
   <artifactId>ajdk-api</artifactId>
   <packaging>jar</packaging>
-  <version>8.5.10-0-0</version>
+  <version>8.6.11-0-0</version>
   <name>ajdk-api</name>
   <url>http://maven.apache.org</url>
 
