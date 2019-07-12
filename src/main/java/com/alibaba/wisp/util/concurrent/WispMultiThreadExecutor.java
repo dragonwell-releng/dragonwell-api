@@ -3,7 +3,6 @@ package com.alibaba.wisp.util.concurrent;
 
 import com.alibaba.wisp.engine.Wisp2Group;
 import com.alibaba.wisp.engine.WispEngine;
-import sun.security.action.GetIntegerAction;
 
 import java.security.AccessController;
 import java.util.List;
@@ -11,6 +10,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
+import java.util.Properties;
 
 
 /**
@@ -30,6 +30,18 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     private final AtomicBoolean isShutdown;
     private final Consumer<Runnable> rejectedExecutionHandler;
     private final ExecutorService delegated;
+    private static final int WISP_VERSION;
+
+    static {
+        Properties p = java.security.AccessController.doPrivileged(
+            new java.security.PrivilegedAction<Properties>() {
+                public Properties run() {
+                    return System.getProperties();
+                }
+            }
+        );
+        WISP_VERSION = parsePositiveIntegerParameter(p, "com.alibaba.wisp.version", 1);
+    }
 
     /**
      * Creates a new {@code WispMultiThreadExecutor} with the given initial
@@ -50,7 +62,7 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         semaphore = maxCoroutine > 0 ? new Semaphore(maxCoroutine) : null;
         isShutdown = new AtomicBoolean(false);
         rejectedExecutionHandler = rejectedHandler;
-        if (AccessController.doPrivileged(new GetIntegerAction("com.alibaba.wisp.version", 1)) == 2) {
+        if (WISP_VERSION == 2) {
             delegated = Wisp2Group.createGroup(threadCount, threadFactory);
         } else {
             delegated = null;
@@ -187,5 +199,19 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+    private static int parsePositiveIntegerParameter(Properties p, String key, int defaultVal) {
+        String value;
+        if (p == null || (value = p.getProperty(key)) == null) {
+            return defaultVal;
+        }
+        int res = defaultVal;
+        try {
+            res = Integer.valueOf(value);
+        } catch (NumberFormatException e) {
+            return defaultVal;
+        }
+        return res <= 0 ? defaultVal : res;
     }
 }
