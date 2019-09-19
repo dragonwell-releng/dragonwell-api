@@ -11,6 +11,10 @@ public class Wisp2Group extends AbstractExecutorService {
         return new Wisp2Group();
     }
 
+    public List<Long> getWispEngineIDs() {
+        return null;
+    }
+
     @Override
     public void shutdown() {
 

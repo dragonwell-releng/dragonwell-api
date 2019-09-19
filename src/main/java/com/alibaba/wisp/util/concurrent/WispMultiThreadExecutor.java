@@ -5,6 +5,7 @@ import com.alibaba.wisp.engine.Wisp2Group;
 import com.alibaba.wisp.engine.WispEngine;
 
 import java.security.AccessController;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -29,7 +30,8 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     private final Semaphore semaphore;
     private final AtomicBoolean isShutdown;
     private final Consumer<Runnable> rejectedExecutionHandler;
-    private final ExecutorService delegated;
+    private final Wisp2Group delegated;
+    private List<Long> workers;
     private static final int WISP_VERSION;
 
     static {
@@ -77,10 +79,19 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
                         allEngineCreated.countDown();
                         awaitUninterruptibly(this.poison);
                     }
+
+                    @Override
+                    public WispEngine getWispEngine() {
+                        return engine;
+                    }
                 };
                 threadFactory.newThread(wispRunners[i]).start();
             }
             awaitUninterruptibly(allEngineCreated);
+            workers = new ArrayList<Long>();
+            for (int i = 0; i < threadCount; i++) {
+                workers.add(wispRunners[i].getWispEngine().getId());
+            }
         }
     }
 
@@ -89,10 +100,18 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         this(threadCount, maxCoroutine, threadFactory, null);
     }
 
+    public List<Long> getWispEngines() {
+        if (delegated != null) {
+            return delegated.getWispEngineIDs();
+        }
+        return workers;
+    }
+
     private abstract class WispRunner implements Runnable {
         WispEngine engine;
         Thread thread;
         CountDownLatch poison = new CountDownLatch(1);
+        public abstract WispEngine getWispEngine();
     }
 
     @Override

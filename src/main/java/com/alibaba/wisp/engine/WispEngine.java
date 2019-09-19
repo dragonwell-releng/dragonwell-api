@@ -44,6 +44,9 @@ public final class WispEngine extends AbstractExecutorService {
         return threadLocalEngine.get();
     }
 
+    public long getId() {
+        return 0;
+    }
     /**
      * Create coroutine to run the command and schedule in current engine.
      *
