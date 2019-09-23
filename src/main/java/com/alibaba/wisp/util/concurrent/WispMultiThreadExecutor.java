@@ -31,7 +31,6 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
     private final AtomicBoolean isShutdown;
     private final Consumer<Runnable> rejectedExecutionHandler;
     private final Wisp2Group delegated;
-    private List<Long> workers;
     private static final int WISP_VERSION;
 
     static {
@@ -88,10 +87,6 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
                 threadFactory.newThread(wispRunners[i]).start();
             }
             awaitUninterruptibly(allEngineCreated);
-            workers = new ArrayList<Long>();
-            for (int i = 0; i < threadCount; i++) {
-                workers.add(wispRunners[i].getWispEngine().getId());
-            }
         }
     }
 
@@ -104,7 +99,7 @@ public class WispMultiThreadExecutor extends AbstractExecutorService {
         if (delegated != null) {
             return delegated.getWispEngineIDs();
         }
-        return workers;
+        return null;
     }
 
     private abstract class WispRunner implements Runnable {
