@@ -4,7 +4,7 @@
   <groupId>com.alibaba.ajdk</groupId>
   <artifactId>dragonwell-api</artifactId>
   <packaging>jar</packaging>
-  <version>8.2.2</version>
+  <version>8.3.3</version>
   <name>dragonwell-api</name>
   <url>http://maven.apache.org</url>
 
@@ -15,8 +15,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>3.8.0</version>
         <configuration>
-          <source>1.6</source>
-          <target>1.6</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
 
@@ -25,6 +25,7 @@
         <artifactId>maven-javadoc-plugin</artifactId>
         <version>3.0.1</version>
         <configuration>
+          <doclint>none</doclint>
           <bottom>"<![CDATA[Copyright 2018, <a href="http://www.alibaba.com">Alibaba, Inc.<a>]]>"</bottom>
         </configuration>
           <executions>
