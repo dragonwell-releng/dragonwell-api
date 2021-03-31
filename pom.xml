@@ -4,7 +4,7 @@
   <groupId>com.alibaba.ajdk</groupId>
   <artifactId>java8-api</artifactId>
   <packaging>jar</packaging>
-  <version>8.5.5</version>
+  <version>8.6.6</version>
   <name>dragonwell-api</name>
   <url>http://maven.apache.org</url>
 
